@@ -49,6 +49,7 @@ estat gof, stat(all) /* Goodness of Fit Statistics */
 estat teffects, standardized /* Direct and Indirect Effects */
 estat ginvariant /* Group Variance of Paraameters, if multiple groups */
 
+/*Create a table to compare SEM results from above three models side by side */
 putdocx paragraph, halign(center)
 putdocx text ("Side by Side Comparison of Coefficient Estimates from Above Three Models."), bold
 putdocx paragraph, halign(center)

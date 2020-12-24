@@ -99,3 +99,24 @@ putdocx paragraph, halign(center)
 putdocx text ("Legend: * = p < 0.05; ** = p<0.01; *** = p<0.001"), bold
 
 putdocx save WordFileName.docx, replace  /* Name Word File */
+
+/* Post Model Estimations for SEM in STATA */
+estat eform /* Display exponentiated coefficients with gsem only. */
+estat eqgof /* Display equation-level goodness of fit statistics */
+estat eqtest /* Equation level test that all coefficients are zero */
+estat framework /* Display estimation results in the modeling framework */
+estat ggof, stat (all) /* Group level goodness of fit statistics */
+estat ginvariant /* Test for invariaance of parameters across group */
+estat gof, stat(all) /* Goodness of fit statistics */
+estat lcgof /* Latent class goodness of fit statistics */
+estat lcmean /* Latent class marginal means */
+estat lcprob /* Latent class marginal probabilities */
+estat mindices /* Modification Indices */
+estat residuals /* Display mean and covariane residuals */
+estat socretests /*Score tests */
+estat sd /* Dispaly variance components as sandard deviations and correlations */
+estat stable /*Check stability of nonrecursive system */
+estat stdize /* Test standardized parameters */
+estat summarize /* Report summary staistics for estimation sample */
+estat teffects /* Decompositin of effects into total, direct and indirect effects */
+

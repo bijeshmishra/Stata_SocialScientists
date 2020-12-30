@@ -110,5 +110,3 @@ estat stable /*Check stability of nonrecursive system */
 estat stdize /* Test standardized parameters */
 estat summarize /* Report summary staistics for estimation sample */
 estat teffects /* Decompositin of effects into total, direct and indirect effects */
-
-

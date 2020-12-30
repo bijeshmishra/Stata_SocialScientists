@@ -73,9 +73,6 @@ putdocx paragraph, halign(center)
 putdocx text ("Give a name to the table"), bold
 putdocx table results = etable
 est store sem2 /* Store estimate of above model as sem2 table */
-estat gof, stat(all) /* Goodness of Fit Statistics */
-estat teffects, standardized /* Direct and Indirect Effects */
-estat ginvariant /* Group Variance of Paraameters, if multiple groups */
 
 /* SEM Model 3 */
 sem () /* Paste code for third SEM Model in this line after deleting this line. The code should start with "sem" or "gsem". */
@@ -84,9 +81,6 @@ putdocx paragraph, halign(center)
 putdocx text ("Give a name to the table"), bold
 putdocx table results = etable
 est store sem3 /* Store estimate of above model as sem3 table */
-estat gof, stat(all) /* Goodness of Fit Statistics */
-estat teffects, standardized /* Direct and Indirect Effects */
-estat ginvariant /* Group Variance of Paraameters, if multiple groups */
 
 /*Create a table to compare SEM results from above three models side by side */
 putdocx paragraph, halign(center)
@@ -119,4 +113,3 @@ estat stable /*Check stability of nonrecursive system */
 estat stdize /* Test standardized parameters */
 estat summarize /* Report summary staistics for estimation sample */
 estat teffects /* Decompositin of effects into total, direct and indirect effects */
-

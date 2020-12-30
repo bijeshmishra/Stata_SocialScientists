@@ -62,9 +62,6 @@ putdocx paragraph, halign(center)
 putdocx text ("Give a name to the table"), bold
 putdocx table results = etable
 est store sem1 /* Store estimate of above model as sem1 table */
-estat gof, stat(all) /* Goodness of Fit Statistics */
-estat teffects, standardized /* Direct and Indirect Effects */
-estat ginvariant /* Group Variance of Paraameters, if multiple groups */
 
 /* SEM Model 2 */
 sem () /* Paste code for second SEM Model in this line after deleting this line. The code should start with "sem" or "gsem". */

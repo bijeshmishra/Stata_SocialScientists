@@ -3,7 +3,7 @@
 * Short title: STATA Results to file.do
 * Created by: Bijesh Mishra
 * Created on: January 2, 2021
-* Purpose: This [SEM to Word File.do] file contain code to export STATA result to word file directly. This file is based on SEM model. But any model can be used. This file runs the model quietly, store model as table, You can store as many table as you want. Them all tables can be exported as one big table. 
+* Purpose: This [SEM to Word File.do] file contain code to export STATA result to word file directly. This file is based on SEM model. But any model can be used. This file runs the model quietly, store model as table, You can store as many table as you want. Them all tables can be exported as one big table. More details on this link: http://repec.org/bocode/e/estout/esttab.html#esttab002 
 
 * Improvement Needed: This package can export goodness of fit statistics as well but not coded in this file. 
 /* Notes: 

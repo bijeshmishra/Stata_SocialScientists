@@ -3,7 +3,7 @@
 * Short title: STATA Results to file.do
 * Created by: Bijesh Mishra
 * Created on: January 2, 2021
-* Purpose: This [SEM to Word File.do] file contain code to export STATA result to word file directly. This file is based on SEM model. But any model can be used. This file runs the model quietly, store model as table, You can store as many table as you want. Them all tables can be exported as one big table. More details on this link: http://repec.org/bocode/e/estout/esttab.html#esttab002 
+* Purpose: This [SEM to Word File.do] file contain code to export STATA result to word file directly using esttab. This file is based on SEM model. But any model can be used. This file runs the model quietly, store model as table, You can store as many table as you want. Them all tables can be exported as one big table. More details on this link: http://repec.org/bocode/e/estout/esttab.html#esttab002 
 
 * Improvement Needed: This package can export goodness of fit statistics as well but not coded in this file. 
 /* Notes: 
@@ -19,7 +19,7 @@ s	Only one among se, z, p, ci, and aux() can be used.
 	"plain" option produces a minimally formatted table with all display formats 
 	set to Stata's %9.0g quasi-standard:
 	"nostar" option supress star.
-	files can be exported as .doc, .docx, .tex. .rtf, .csv, 
+	files can be exported as .doc, .docx, .tex. .rtf, .csv,
 */
 
 /* Modification Documentation */
@@ -31,6 +31,7 @@ s	Only one among se, z, p, ci, and aux() can be used.
 
 /* Exports Models and required statistics in one table */
 
+eststo clear
 * Theory of Reasoned Action, Modified (ATTITUDE to DHUNT) (SEM Builder: TRAModif)
 eststo: quietly /// /* Run model quietly and store */
 sem (SUBNORM -> e1value e1diverse e1support e1livable, ) ///
@@ -63,14 +64,45 @@ sem (SUBNORM -> e1value e1diverse e1support e1livable, ) ///
 	latent(SUBNORM MORAL ATTITUDE DHUNT INTENT ) ///
 	cov( SUBNORM*ATTITUDE) nocapslatent
 
-esttab using TRA_TPB_se.rtf, wide se replace /// 
-scalars(F df_m df_r) /// 
+esttab using TRA_TPB_se.rtf, wide onecell se replace /// 
 star(* 0.10 ** 0.05) ///
 nonumbers mtitle ("TRA" "TRA-moral" "TPB" "TPB-moral") ///
 title ("Theory of Planned Behavior and Theory of Reasoned Action without and With Moral Norms") ///
 addnote ("Data Source: PhD Dissertation Survey Data 2020.")
 
 eststo clear
+
+/*
+Also Explore:
+
+esttab, noisily notype
+estout ,
+ cells(b(fmt(a3) star) t(fmt(2) par("{ralign @modelwidth:{txt:(}" "{txt:)}}")))
+ stats(N, fmt(%18.0g) labels(`"N"'))
+ starlevels(* 0.05 ** 0.01 *** 0.001)
+ varwidth(12)
+ modelwidth(12)
+ abbrev
+ delimiter(" ")
+ smcltags
+ prehead(`"{hline @width}"')
+ posthead("{hline @width}")
+ prefoot("{hline @width}")
+ postfoot(`"{hline @width}"' `"t statistics in parentheses"' `"@starlegend"')
+ varlabels(, end("" "") nolast)
+ mlabels(, depvar)
+ numbers
+ collabels(none)
+ eqlabels(, begin("{hline @width}" "") nofirst)
+ interaction(" # ")
+ notype
+ level(95)
+ style(esttab)
+
+return list
+
+* More details on: http://repec.org/bocode/e/estout/esttab.html#esttab014
+*/
 
 /* Some Additional Notes */
 

@@ -163,9 +163,8 @@ label values e* fivescale
 label values c2* sixscale
 label values d2* sixscale
 label values c7* sixscale
-describe
-codebook
-
+describe /* Describe variables */
+codebook /* Generate a codebook from the dataset */
 
 *******************************************************************************
 *******************************************************************************

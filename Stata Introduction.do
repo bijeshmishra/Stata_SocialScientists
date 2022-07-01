@@ -1,7 +1,7 @@
 /* Primary Data Analysis */
 * Assignment 1:
 * Set Working Directory:
-cd "/Users/bmishra/Dropbox/OSU/PhD/Fall 2021/AGEC5233 PDA/Assignment/Assignment1"
+cd "/path/to/dir"
 
 * Question 1:
 * a:

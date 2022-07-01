@@ -13,43 +13,6 @@
 ********************************************************************************
 ********************************************************************************
 
-/* Structural Equation Modeling Decision Making Criteria */
-
-/*
-Fit measures:
-Tucker and Lewis Index (TLI): No smaller than 0.158.
-Comparative Fit Index (CFI): 1 or 0. Should be above 0.90 to 1.
-RMSEA: 0.01 = Excellent, 0.05 = Good, 0.08 = Mediocre fit. Confidence interval close to zero and no greater than 0.1
-SRMR: Perfect fit = 0. Value less than 0.08 is generally considered as a good fit.
-AIC, BIC, SABIC, Hoelter Index (# of min. sample for non-significant Chi-squared). Smaller is better.
-pclose: Ho: RMSEA = 0.05 & Ha: RMSEA > 0.05. Look for p > 0.05 implies close to fit model.
-
-If model does not fit modify following
-	1. Number of variables.
-	2. Sample size if possible.
-	3. Model Complexity i.e. number of parameters to be estimated.
-	4. Check and adjust normality.
-
-/* SEM Model Result Reporting Format:
-* Fit Indicators:
-	LR Chi2_ms = 
-	LR Chi2_ms, p > chi2 = 
-	LR Chi2_bs = 
-	LR Chi2_bs, p > chi2 = 
-	RMSEA (< 0.05:good, <0.08:Mediocre) = 
-	pclose (> 0.05, good) = 
-	AIC (Smaller, better) = 
-	BIC (Smaller, better) = 
-	CFI (> 0.90) = 
-	TLI (> 0.158)= 
-	SRMR (< 0.08, ideally 0) = 	
-	CD = 
-Description: 
-*/
-*/
-********************************************************************************
-********************************************************************************
-
 /* Compile SEM Model in a word file and compare three models in single table */
 
 putdocx clear

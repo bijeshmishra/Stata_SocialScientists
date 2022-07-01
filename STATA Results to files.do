@@ -1,33 +1,5 @@
 ********************************************************************************
 * Title: Export STATA Results in Stata to external file.
-* Short title: STATA Results to file.do
-* Created by: Bijesh Mishra
-* Created on: January 2, 2021
-* Purpose: This [SEM to Word File.do] file contain code to export STATA result to word file directly using esttab. This file is based on SEM model. But any model can be used. This file runs the model quietly, store model as table, You can store as many table as you want. Them all tables can be exported as one big table. More details on this link: http://repec.org/bocode/e/estout/esttab.html#esttab002 
-
-* Improvement Needed: This package can export goodness of fit statistics as well but not coded in this file. 
-/* Notes: 
-s	Only one among se, z, p, ci, and aux() can be used.
-	"wide" can be replaced by "compress".
-	scalars (F df_m df_r).
-	Scalars can be used to export model fit statistics and other statistics.
-	"ar2" option gives Adjusted R squared coefficient.
-	"beta not" as a option supress beta coefficient.
-	"label" option labels variable in the model.
-	"varwidth(25) label nobaselevels interaction(" X ")" as an option setup width 
-	of variable, label the variable and shows ineraction as "X".
-	"plain" option produces a minimally formatted table with all display formats 
-	set to Stata's %9.0g quasi-standard:
-	"nostar" option supress star.
-	files can be exported as .doc, .docx, .tex. .rtf, .csv,
-*/
-
-/* Modification Documentation */
-* Modified on (Date):
-* Modified by (Person):
-* Modifications:
-********************************************************************************
-********************************************************************************
 
 /* Exports Models and required statistics in one table */
 

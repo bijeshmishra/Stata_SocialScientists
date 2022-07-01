@@ -1,6 +1,6 @@
 /* Assignment 3 */
-cd "/Users/bmishra/Dropbox/OSU/PhD/Fall 2021/AGEC5233 PDA/Assignment/Assignment3"
-use assignment3.dta, clear
+cd "/path/to/file"
+use data.dta, clear
 
 label variable vote " Accepted Tax = 1"
 label variable male "male (=1)"

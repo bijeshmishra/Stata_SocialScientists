@@ -1,6 +1,6 @@
 /* Assignment 4 */
-cd "/Users/bmishra/Dropbox/OSU/PhD/Fall 2021/AGEC5233 PDA/Assignment/Assignment4"
-use "/Users/bmishra/Dropbox/OSU/PhD/Fall 2021/AGEC5233 PDA/Assignment/Assignment4/BrandSwitch.dta", clear
+cd "/path/to/file"
+use "/User/data.dta", clear
 ds /* List Variable Names */
 
 * Q1: Why MNL:

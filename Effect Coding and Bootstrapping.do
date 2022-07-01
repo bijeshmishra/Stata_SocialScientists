@@ -1,7 +1,7 @@
 /* Assignment 2 */
 * putdocx begin
-cd "/Users/bmishra/Dropbox/OSU/PhD/Fall 2021/AGEC5233 PDA/Assignment/Assignment2"
-use assignment2.dta, clear
+cd "/path/to/file"
+use data.dta, clear
 
 * ereturn list
 

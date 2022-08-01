@@ -48,7 +48,7 @@ Description:
 ********************************************************************************
 
 /* SEM Command with non-normal data: A new normality correction for the RMSEA, CFI, and TLI for n > 200 */
-program drop robust_gof
+capture program drop robust_gof
 program define robust_gof, rclass
 version 15
 

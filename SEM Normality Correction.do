@@ -127,135 +127,141 @@ end
 exit
 
 
+********************************************************************************
 /* SEM Command with non-normal data: A new normality correction for the RMSEA, CFI, and TLI for n < 200 */
+
 *! Swain V1, 15 March 2013
 *! Authors: John Antonakis & Nicolas Bastardoz, University of Lausanne
 *! swain_gof V1, 11 July 2017
 *! Modification: Wolfgang Langer 23.08.2018
-  
-program define swain_gof, rclass
-version 15
-  	
-if "`e(cmd)'"!="sem" {
-dis in red "This command only works after SEM"
-exit 198
-}
-	
-obtain residuals
-qui: estat residuals
-  
-*save residuals as a matrix 
-mat r = r(res_cov)
-  
-*count the rows of the matrix (to give number of variables)
-local no_vars = rowsof(r)
-  
-*sample size of model
-local N = e(N) 
-  
-*df of model
-local df = e(df_ms)
-  
-*Chi-square of model
-local chi = e(chi2_ms)
-  
-local chi_bs = e(chi2_bs)
 
-*calculate Swain q
-local swain_q = (sqrt(1+4*(`no_vars')*(`no_vars'+1)-8*`df')-1)/2
+* swain can be installed using "ssc install". But this package can be installed only in Stata 16.1. I modified swain_gof written by Antonakis and Bastardoz (2013) by adding code from swain ado that can be installed in stata using "ssc install swain" 
+* Link: https://econpapers.repec.org/software/bocbocode/s457617.htm
 
-local swain = 1 - ((`no_vars')*(2*(`no_vars'^2) + 3*(`no_vars') - 1) - ///
-`swain_q'*(2*(`swain_q'^2)+3*(`swain_q')-1))/ ///
-(12*`df'*(`N'-1))
+*! Modification: Bijesh Mishra. August 01, 2022. Combined swain_gof and swain into swain_combo (proposed name).which can be installed in Stata 16.1 using "ssc install swain" command. * SWAIN: Stata module to correct the SEM chi-square overidentification test in small sample sizes or complex models
+
+capture program drop swain_combo
+  program define swain_combo, rclass
+ version 15
+    if "`e(cmd)'"!="sem" {
+	di in red "This command only works after sem"
+	exit 198
+	}
+
+  *obtain residuals
+  qui: estat residuals
+  
+  *save residuals as a matrix 
+  mat r = r(res_cov)
+  
+  *count the rows of the matrix (to give number of variables)
+  local no_vars = rowsof(r)
+  
+  *sample size of model
+  local N = e(N) 
+  
+  *df of model
+  local df = e(df_ms)
+  
+  *Chi-square of models
+  local chi = e(chi2_ms)  
+  local chi_bs = e(chi2_bs)
+
+  *calculate Swain q
+  local swain_q = (sqrt(1+4*(`no_vars')*(`no_vars'+1)-8*`df')-1)/2
+
+* Calculating Swain correction:
+  local swain = 1 - ((`no_vars')*(2*(`no_vars'^2) + 3*(`no_vars') - 1) - ///
+                `swain_q'*(2*(`swain_q'^2)+3*(`swain_q')-1))/ ///
+				(12*`df'*(`N'-1))
 			
-local swain_chi = `swain'*`chi'
-  
-local p_swain = chi2tail(`df',`swain_chi') 
-  
-* Satorra-Bentler-corrected statistics
-  
-local chi_sb = e(chi2sb_ms)
-  
-local chi_sb_bs = e(chi2sb_bs)
-  
-local df_bs = e(df_bs)
-  
-local swain_chi_sb = `swain'*`chi_sb'
-  
-local p_swain_chi_sb = chi2tail(`df',`swain_chi_sb')
-  
-*stores saved results in r()
-return scalar swain_p = `p_swain'
-return scalar swain_chi = `swain_chi'
-return scalar swain_corr = `swain'  
-return scalar swain_chi_sb = `swain_chi_sb'
-return scalar swain_sb_p = `p_swain_chi_sb'
-  
-* Calculation of the TLI, CFI and RMSEA fit indices
-* Under Multinormal Distribution Assumption
-  
-local tli_e1 = `chi_bs' / `df_bs'
-   
-local tli_e2 = `swain_chi' / `df'
-  
-local swain_tli = (`tli_e1' - `tli_e2') / (`tli_e1' - 1)
-  
-local cfi_e1 = `chi_bs' - `df_bs'
-  
-local cfi_e2 = `swain_chi'-`df'
-  
-local swain_cfi = (`cfi_e1' - `cfi_e2') / `cfi_e1'
-  
-local swain_rmsea = sqrt((`swain_chi'-`df') / (`N'*`df'))
+* Calculating Swain Chi-squared, Yian Chi-squared and p-value:
+  local swain_chi = `swain'*`chi'  
+  local p_swain = chi2tail(`df',`swain_chi') 
+  local f_test = `chi'/`df'
+  local f_test_p = Ftail(`df',`N'-1,`f_test')
+  local yuan_chi = (`N'-(2.381 + 0.367*`no_vars' + 0.003*((`no_vars'*(`no_vars'+1)/2)-`df'-2*`no_vars')))*`chi'/(`N'-1)
+  local yuan_p = chi2tail(`df',`yuan_chi') 
 
-return scalar swain_tli = `swain_tli'
-return scalar swain_cfi = `swain_cfi'
-return scalar swain_rmsea = `swain_rmsea'
+  * Satorra-Bentler-corrected statistics
+  local chi_sb = e(chi2sb_ms)
+  local chi_sb_bs = e(chi2sb_bs)
+  local df_bs = e(df_bs)
+  local swain_chi_sb = `swain'*`chi_sb'
+  local p_swain_chi_sb = chi2tail(`df',`swain_chi_sb')
   
-* Under violation of Multinormal Distribution: Satorra-Bentler corrected chi2-values
+  *stores saved results in r()
+  return scalar swain_p = `p_swain'
+  return scalar swain_chi = `swain_chi'
+  return scalar swain_corr = `swain'   
+  return scalar swain_chi_sb = `swain_chi_sb'
+  return scalar swain_sb_p = `p_swain_chi_sb'
+  return scalar f_test = `f_test'
+  return scalar f_test_p = `f_test_p'
+  return scalar yuan_chi = `yuan_chi'
+  return scalar yuan_p = `yuan_p'
   
-local tli_sb_e1 = `chi_sb_bs' / `df_bs'
+  * Calculation of the TLI, CFI and RMSEA fit indices
+  * Under Multinormal Distribution Assumption
+  local tli_e1 = `chi_bs' / `df_bs'   
+  local tli_e2 = `swain_chi' / `df'
+  local swain_tli = (`tli_e1' - `tli_e2') / (`tli_e1' - 1)
+  local cfi_e1 = `chi_bs' - `df_bs'  
+  local cfi_e2 = `swain_chi'-`df'
+  local swain_cfi = (`cfi_e1' - `cfi_e2') / `cfi_e1'
+  local swain_rmsea = sqrt((`swain_chi'-`df') / (`N'*`df'))
+
+  return scalar swain_tli = `swain_tli'
+  return scalar swain_cfi = `swain_cfi'
+  return scalar swain_rmsea = `swain_rmsea'
   
-local tli_sb_e2 = `swain_chi_sb' / `df'
+  * Under violation of Multinormal Distribution: Satorra-Bentler corrected chi2-values
+  local tli_sb_e1 = `chi_sb_bs' / `df_bs'
+  local tli_sb_e2 = `swain_chi_sb' / `df' 
+  local swain_tli_sb=(`tli_sb_e1' - `tli_sb_e2') / (`tli_sb_e1' - 1)  
+  local cfi_sb_e1 = `chi_sb_bs' - `df_bs'
+  local cfi_sb_e2 = `swain_chi_sb'-`df'
+  local swain_cfi_sb = (`cfi_sb_e1' - `cfi_sb_e2') / `cfi_sb_e1'
+  local swain_rmsea_sb = sqrt((`swain_chi_sb' - `df') / (`N'*`df'))	
   
-local swain_tli_sb=(`tli_sb_e1' - `tli_sb_e2') / (`tli_sb_e1' - 1)  
- 
-local cfi_sb_e1 = `chi_sb_bs' - `df_bs'
-  
-local cfi_sb_e2 = `swain_chi_sb'-`df'
-  
-local swain_cfi_sb = (`cfi_sb_e1' - `cfi_sb_e2') / `cfi_sb_e1'
-   
-local swain_rmsea_sb = sqrt((`swain_chi_sb' - `df') / (`N'*`df'))
+  return scalar swain_tli_sb = `swain_tli_sb'
+  return scalar swain_cfi_sb = `swain_cfi_sb'
+  return scalar swain_rmsea_sb = `swain_rmsea_sb'
 	
-return scalar swain_tli_sb = `swain_tli_sb'
-return scalar swain_cfi_sb = `swain_cfi_sb'
-return scalar swain_rmsea_sb = `swain_rmsea_sb'
-	
-dis ""
-dis "Fit indices under assumption of multivariate normal distribution"
-dis ""
-dis "Swain correction factor = " as result %6.4f `swain' 
-dis "Swain corrected chi-square = " `swain_chi' 
-dis "p-value of Swain corrected chi-square  = " as result %6.4f `p_swain' 
-dis ""
-dis "Swain-corrected Tucker-Lewis-Index (TLI) = " as result %6.4f `swain_tli'
-dis "Swain-corrected Comparative-Fit-Index (CFI) = " as result %6.4f `swain_cfi'
-dis "Swain-correct RMSEA = " as result %6.4f `swain_rmsea'
-dis ""
-dis "Fit indices under violation of multivariate normal distribution"
-dis "" 
-dis "Satorra-Bentler-corrected statistics: "
-dis "Swain-Satorra-Bentler corrected chi-square = " `swain_chi_sb'
-dis "p-value of Swain-Satorra-Bentler corrected chi-square = " ///
-as result %6.4f `p_swain_chi_sb'
-dis ""
-dis "Swain-Satorra-Bentler-corrected Tucker-Lewis-Index = " as result %6.4f `swain_tli_sb'
-dis "Swain-Satorra-Bentler-corrected Comparative-Fit-Index = " as result %6.4f `swain_cfi_sb'
-dis "Swain-Satorra-Bentler-correct RMSEA = " as result %6.4f `swain_rmsea_sb'
-dis ""		
-end
-exit
+  dis ""
+  dis "Fit indices under assumption of multivariate normal distribution:"
+  dis ""
+  dis in result "Swain correction factor = " as result %6.4f `swain' 
+  dis "Swain corrected chi-square = " `swain_chi' 
+  dis "p-value of Swain corrected chi-square  = " as result %6.4f `p_swain' 
+  dis ""
+  dis "Swain correction fit statistics:"
+  dis "Swain corrected Tucker Lewis Index = " as result %6.4f `swain_tli'
+  dis "Swain corrected Comparative Fit Index = " as result %6.4f `swain_cfi'
+  dis "Swain correct RMSEA = " as result %6.4f `swain_rmsea'
+  dis ""
+  dis "Fit indices under violation of multivariate normal distribution"
+  dis "" 
+  dis "Satorra-Bentler-corrected statistics: "
+  dis "Swain-Satorra-Bentler corrected Chi-square = " `swain_chi_sb'
+  dis "p-value of Swain Satorra Bentler corrected chi-square = " ///
+      as result %6.4f `p_swain_chi_sb'
+  dis ""
+  dis "Swain Satorra Bentler corrected Tucker Lewis Index = " as result %6.4f `swain_tli_sb'
+  dis "Swain Satorra Bentler corrected Comparative Fit Index = " as result %6.4f `swain_cfi_sb'
+  dis "Swain Satorra Bentler correct RMSEA = " as result %6.4f `swain_rmsea_sb'
+  dis ""
+  dis in result"Empirical correction statistics"
+  dis in result "Yuan Tian-Yanagihara empirically corrected chi-square = " `yuan_chi'
+  dis in result "p-value of Yuan Tian Yanagihara empirically corrected chi-square = "`yuan_p'
+  dis ""   
+  dis in result "F-test statistics"
+  dis in result "F-test value = " `f_test'
+  dis in result "p-value of the F-test = " `f_test_p'
+dis ""	
+  end
+  exit
+********************************************************************************
 
 * TRA: (SEM Builder: TRA)
 sem (SUBNORM -> e1value e1diverse e1support e1livable, ) ///
@@ -278,6 +284,7 @@ https://langer.soziologie.uni-halle.de/stata/index.html
 https://langer.soziologie.uni-halle.de/stata/pdf/Langer-German-Stata-Users-Group-Meeting-2018.pdf
 https://langer.soziologie.uni-halle.de/stata/ado/swain_gof.sthlp
 https://langer.soziologie.uni-halle.de/stata/ado/swain_gof.ado
+https://econpapers.repec.org/software/bocbocode/s457617.htm
 
 Large Sample:
 https://langer.soziologie.uni-halle.de/stata/pdf/Langer-German-Stata-Users-Group-Meeting-2019.pdf

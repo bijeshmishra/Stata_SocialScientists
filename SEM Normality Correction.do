@@ -167,6 +167,7 @@ capture program drop swain_combo
   local chi = e(chi2_ms)  
   local chi_bs = e(chi2_bs)
 
+/* Swain Correction */
   *calculate Swain q
   local swain_q = (sqrt(1+4*(`no_vars')*(`no_vars'+1)-8*`df')-1)/2
 
@@ -175,13 +176,9 @@ capture program drop swain_combo
                 `swain_q'*(2*(`swain_q'^2)+3*(`swain_q')-1))/ ///
 				(12*`df'*(`N'-1))
 			
-* Calculating Swain Chi-squared, Yian Chi-squared and p-value:
+* Calculating Swain Chi-squared:
   local swain_chi = `swain'*`chi'  
-  local p_swain = chi2tail(`df',`swain_chi') 
-  local f_test = `chi'/`df'
-  local f_test_p = Ftail(`df',`N'-1,`f_test')
-  local yuan_chi = (`N'-(2.381 + 0.367*`no_vars' + 0.003*((`no_vars'*(`no_vars'+1)/2)-`df'-2*`no_vars')))*`chi'/(`N'-1)
-  local yuan_p = chi2tail(`df',`yuan_chi') 
+  local p_swain = chi2tail(`df',`swain_chi')
 
   * Satorra-Bentler-corrected statistics
   local chi_sb = e(chi2sb_ms)
@@ -193,14 +190,11 @@ capture program drop swain_combo
   *stores saved results in r()
   return scalar swain_p = `p_swain'
   return scalar swain_chi = `swain_chi'
-  return scalar swain_corr = `swain'   
+  return scalar swain_corr = `swain'  
+ 
   return scalar swain_chi_sb = `swain_chi_sb'
   return scalar swain_sb_p = `p_swain_chi_sb'
-  return scalar f_test = `f_test'
-  return scalar f_test_p = `f_test_p'
-  return scalar yuan_chi = `yuan_chi'
-  return scalar yuan_p = `yuan_p'
-  
+    
   * Calculation of the TLI, CFI and RMSEA fit indices
   * Under Multinormal Distribution Assumption
   local tli_e1 = `chi_bs' / `df_bs'   
@@ -209,8 +203,8 @@ capture program drop swain_combo
   local cfi_e1 = `chi_bs' - `df_bs'  
   local cfi_e2 = `swain_chi'-`df'
   local swain_cfi = (`cfi_e1' - `cfi_e2') / `cfi_e1'
-  local swain_rmsea = sqrt((`swain_chi'-`df') / (`N'*`df'))
-
+  local swain_rmsea = sqrt((`swain_chi' - `df')/(`N' * `df'))
+  
   return scalar swain_tli = `swain_tli'
   return scalar swain_cfi = `swain_cfi'
   return scalar swain_rmsea = `swain_rmsea'
@@ -218,40 +212,60 @@ capture program drop swain_combo
   * Under violation of Multinormal Distribution: Satorra-Bentler corrected chi2-values
   local tli_sb_e1 = `chi_sb_bs' / `df_bs'
   local tli_sb_e2 = `swain_chi_sb' / `df' 
-  local swain_tli_sb=(`tli_sb_e1' - `tli_sb_e2') / (`tli_sb_e1' - 1)  
+  local swain_tli_sb = (`tli_sb_e1' - `tli_sb_e2') / (`tli_sb_e1' - 1)  
   local cfi_sb_e1 = `chi_sb_bs' - `df_bs'
   local cfi_sb_e2 = `swain_chi_sb'-`df'
   local swain_cfi_sb = (`cfi_sb_e1' - `cfi_sb_e2') / `cfi_sb_e1'
-  local swain_rmsea_sb = sqrt((`swain_chi_sb' - `df') / (`N'*`df'))	
+  local swain_rmsea_sb = sqrt((`swain_chi_sb' - `df') / (`N' * `df'))
+  local swain_mse_sb = ((`swain_chi_sb' - `df') / (`N' * `df'))
   
   return scalar swain_tli_sb = `swain_tli_sb'
   return scalar swain_cfi_sb = `swain_cfi_sb'
   return scalar swain_rmsea_sb = `swain_rmsea_sb'
-	
+  return scalar swain_mse_sb = `swain_mse_sb'
+
   dis ""
-  dis "Fit indices under assumption of multivariate normal distribution:"
+  dis as text "Recap of Data Entered:"
+  dis as result "Number of variables in model = "`no_vars'
+  dis as result "Df of model = " `df'
+  dis as result "Size of model (N) = " `N'
+  dis as result "Chi-square of model = " `chi'
+  dis as result "p-value of chi-square of model = " chi2tail(`df',`chi')
   dis ""
-  dis in result "Swain correction factor = " as result %6.4f `swain' 
-  dis "Swain corrected chi-square = " `swain_chi' 
-  dis "p-value of Swain corrected chi-square  = " as result %6.4f `p_swain' 
+  dis as text "Fit indices under assumption of multivariate normal distribution:"
+  dis as result "Swain correction factor = " %6.4f `swain' 
+  dis as result "Swain corrected chi-square = " `swain_chi' 
+  dis as result "p-value of Swain corrected chi-square  = " %6.4f `p_swain' 
   dis ""
-  dis "Swain correction fit statistics:"
-  dis "Swain corrected Tucker Lewis Index = " as result %6.4f `swain_tli'
-  dis "Swain corrected Comparative Fit Index = " as result %6.4f `swain_cfi'
-  dis "Swain correct RMSEA = " as result %6.4f `swain_rmsea'
+  dis as text "Swain correction fit statistics:"
+  dis as result "Swain corrected Tucker Lewis Index = " %6.4f `swain_tli'
+  dis as result "Swain corrected Comparative Fit Index = " %6.4f `swain_cfi'
+  dis as result "Swain corrected RMSEA = " %6.4f `swain_rmsea'
   dis ""
-  dis "Fit indices under violation of multivariate normal distribution"
-  dis "" 
-  dis "Satorra-Bentler-corrected statistics: "
-  dis "Swain-Satorra-Bentler corrected Chi-square = " `swain_chi_sb'
-  dis "p-value of Swain Satorra Bentler corrected chi-square = " ///
-      as result %6.4f `p_swain_chi_sb'
+  dis as text "Fit indices under violation of multivariate normal distribution"
+  dis as text "Satorra Bentler corrected statistics: "
+  dis as result "Swain Satorra Bentler corrected Chi-square = " `swain_chi_sb'
+  dis as result "p-value of Swain Satorra Bentler corrected Chi-square = " ///
+       %6.4f `p_swain_chi_sb'
   dis ""
-  dis "Swain Satorra Bentler corrected Tucker Lewis Index = " as result %6.4f `swain_tli_sb'
-  dis "Swain Satorra Bentler corrected Comparative Fit Index = " as result %6.4f `swain_cfi_sb'
-  dis "Swain Satorra Bentler correct RMSEA = " as result %6.4f `swain_rmsea_sb'
-  dis ""
-  dis in result"Empirical correction statistics"
+  dis as result "Swain Satorra Bentler corrected Tucker Lewis Index = " %6.4f `swain_tli_sb'
+  dis as result "Swain Satorra Bentler corrected Comparative Fit Index = " %6.4f `swain_cfi_sb'
+  dis in result "Swain Satorra Bentler corrected RMSEA = " %6.4f `swain_rmsea_sb'
+  dis in result "Swain Satorra Bentler corrected MSE = " %6.4f `swain_mse_sb'
+
+/* F-test */
+local f_test = `chi'/`df'
+  local f_test_p = Ftail(`df',`N'-1,`f_test')
+  local yuan_chi = (`N'-(2.381 + 0.367*`no_vars' + 0.003*((`no_vars'*(`no_vars'+1)/2)-`df'-2*`no_vars')))*`chi'/(`N'-1)
+  local yuan_p = chi2tail(`df',`yuan_chi') 
+
+  return scalar f_test = `f_test'
+  return scalar f_test_p = `f_test_p'
+  return scalar yuan_chi = `yuan_chi'
+  return scalar yuan_p = `yuan_p'
+  
+dis ""
+  dis as text "Empirical correction statistics"
   dis in result "Yuan Tian-Yanagihara empirically corrected chi-square = " `yuan_chi'
   dis in result "p-value of Yuan Tian Yanagihara empirically corrected chi-square = "`yuan_p'
   dis ""   
@@ -273,11 +287,12 @@ sem (SUBNORM -> e1value e1diverse e1support e1livable, ) ///
     latent(SUBNORM ATTITUDE INTENT) ///
     cov(SUBNORM*ATTITUDE) nocapslatent standardized vce(sbentler)
 estat gof, stat(all) /* Goodness of Fit */
-swain_gof /* swain_gof.ado for small sample */
 robust_gof /* robust_gof.ado for large sample */
+swain_combo /* swain_combo for small sample with F Test */
 estat framework, standardized /* Latent Constructs */
 estat eqgof /* Equation level goodness of Fit */
 ********************************************************************************
+
 References:
 Small Sample:
 https://langer.soziologie.uni-halle.de/stata/index.html
